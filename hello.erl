@@ -1,5 +1,11 @@
 % hello world program
 
+% how to run function
+% compile with erlc ./whatever.erl
+% erl
+% call the actual function
+% exam:main().
+
 -module(hello). 
 -export([start/0]). 
 
