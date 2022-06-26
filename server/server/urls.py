@@ -34,6 +34,6 @@ router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', include('api.urls')),
     path('admin/', admin.site.urls),
 ]
