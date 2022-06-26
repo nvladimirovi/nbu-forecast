@@ -1,12 +1,7 @@
 
-import io
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.optim import lr_scheduler
-from torch.autograd import Variable
-import torchvision
-from torchvision import datasets, models, transforms
+from torchvision import models, transforms
 
 from PIL import Image
 
