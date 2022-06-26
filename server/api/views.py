@@ -21,10 +21,13 @@ def predict_api(request):
     """
 
     if request.method == 'POST':
-        image = predictor.transform_image(request.data["file"].file)
-        outputs = predictor.vgg16(image)
+        try:
+            image = predictor.transform_image(request.data["file"].file)
+            outputs = predictor.vgg16(image)
 
-        _, preds = torch.max(outputs.data, 1)
-        predicted_labels = [preds[j] for j in range(image.size()[0])]
+            _, preds = torch.max(outputs.data, 1)
+            predicted_labels = [preds[j] for j in range(image.size()[0])]
 
-        return Response(class_names[predicted_labels[0]], status=status.HTTP_200_OK)
+            return Response(class_names[predicted_labels[0]], status=status.HTTP_200_OK)
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
