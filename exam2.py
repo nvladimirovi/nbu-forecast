@@ -15,7 +15,11 @@
 # Testing data filename format: [4 digit id].jpg (e.g. 0001.jpg)
 # 
 # 
+
 from __future__ import print_function, division
+from multiprocessing import freeze_support
+
+from IPython.display import HTML, display, clear_output
 
 import torch
 import torch.nn as nn
@@ -34,7 +38,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Subset
 
-plt.ion()  
+if __name__ == '__main__':
+    freeze_support()
+
+plt.ion()
 
 use_gpu = torch.cuda.is_available()
 if use_gpu:
@@ -48,20 +55,24 @@ if use_gpu:
 data_dir = './content/dataset'
 
 
+# !unzip "/content/drive/MyDrive/НБУ/Семестър 2/Прогнозиране чрез анализ на данни - II част. Невронни мрежи/Exam 2/dataset.zip" -d "/content/dataset"
+# clear_output()
+
+
 # Move files in correct dirs
-original_train_filenames = os.listdir(data_dir + "/train/train")
+if os.path.exists(data_dir + "/train/train") == True:
 
+    original_train_filenames = os.listdir(data_dir + "/train/train")
 
-for filename in original_train_filenames:
-  os.rename(f"{data_dir}/train/train/{filename}", f"{data_dir}/train/{filename}")
+    for filename in original_train_filenames:
+        os.rename(f"{data_dir}/train/train/{filename}", f"{data_dir}/train/{filename}")
 
+    import shutil
 
-import shutil
-
-try:
-  shutil.rmtree(f'{data_dir}/train/train')
-except:
-  pass
+    try:
+        shutil.rmtree(f'{data_dir}/train/train')
+    except:
+        pass
 
 
 TRAIN = 'train'
@@ -132,9 +143,12 @@ def show_databatch(inputs, classes):
     imshow(out, title=[class_names[x] for x in classes])
 
 # Get a batch of training data
-inputs, classes = next(iter(dataloaders[TRAIN]))
-show_databatch(inputs, classes)
+def preview():
+    inputs, classes = next(iter(dataloaders[TRAIN]))
+    show_databatch(inputs, classes)
 
+if __name__ == '__main__':
+    preview()
 
 def visualize_model(vgg, num_images=6, type_of_data=TEST):
     was_training = vgg.training
@@ -232,8 +246,16 @@ def eval_model(vgg, criterion, type_of_data=TEST):
 
 
 # Load the pretrained model from pytorch
-vgg16 = models.vgg16_bn()
-vgg16.load_state_dict(torch.load(f"./content/vgg16_bn.pth/vgg16_bn.pth"))
+vgg16 = models.vgg16_bn(pretrained=True)
+
+# !!!! IMPORTANT !!!
+
+# ...OR YOU CAN DOWNLOAD THE WEIGHTS FILE ON YOUR OWN AND UNCOMMENT THE CODE BELOW
+# IT WOULD BE MUCH FASTER
+# vgg16 = models.vgg16_bn()
+# vgg16.load_state_dict(torch.load(f"./vgg16_bn.pth/vgg16_bn.pth"))
+
+
 print(vgg16.classifier[6].out_features) # 1000 
 
 
@@ -247,6 +269,9 @@ features = list(vgg16.classifier.children())[:-1] # Remove last layer
 features.extend([nn.Linear(num_features, len(class_names))]) # Add our layer with 4 outputs
 vgg16.classifier = nn.Sequential(*features) # Replace the model classifier
 print(vgg16)
+
+
+list(vgg16.classifier.children())
 
 
 # If you want to train the model for more than 2 epochs, set this to True after the first run
@@ -268,10 +293,11 @@ exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
 
 
 print("Test before training")
-eval_model(vgg16, criterion, TEST)
+# eval_model(vgg16, criterion, TEST)
 
 
-visualize_model(vgg16) #test before training
+if __name__ == '__main__':
+    visualize_model(vgg16) #test before training
 
 
 def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
@@ -287,7 +313,7 @@ def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
     train_batches = len(dataloaders[TRAIN])
     
     for epoch in range(num_epochs):
-        print("Epoch {}/{}".format(epoch, num_epochs))
+        print("Epoch {}/{}".format(epoch + 1, num_epochs))
         print('-' * 10)
         
         loss_train = 0
@@ -346,9 +372,10 @@ def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
         print('-' * 10)
         print()
         
-        if avg_acc_val > best_acc:
-            best_acc = avg_acc_val
-            best_model_wts = copy.deepcopy(vgg.state_dict())
+        best_model_wts = copy.deepcopy(vgg.state_dict())
+        # if avg_acc_val > best_acc:
+        #     best_acc = avg_acc_val
+        #     best_model_wts = copy.deepcopy(vgg.state_dict())
         
     elapsed_time = time.time() - since
     print()
@@ -359,8 +386,8 @@ def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
     return vgg
 
 
-vgg16 = train_model(vgg16, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=2)
-torch.save(vgg16.state_dict(), 'VGG16_v2-Fruit-Classifier.pt')
+# vgg16 = train_model(vgg16, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=2) # Uncomment to train the model
+# torch.save(vgg16.state_dict(), 'VGG16_v2-Fruit-Classifier.pt') # Uncomment to train the model
 
 
 vgg16.load_state_dict(torch.load(f"VGG16_v2-Fruit-Classifier.pt"))
@@ -369,9 +396,7 @@ vgg16.load_state_dict(torch.load(f"VGG16_v2-Fruit-Classifier.pt"))
 vgg16.training
 
 
-eval_model(vgg16, criterion, TEST)
+# eval_model(vgg16, criterion, TEST) # Uncomment to evaluate the model
 
-
-visualize_model(vgg16, num_images=32, type_of_data=TEST)
-
-
+if __name__ == '__main__':
+    visualize_model(vgg16, num_images=1, type_of_data=TEST)
