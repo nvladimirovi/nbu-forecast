@@ -14,6 +14,9 @@ Create python virtual env
 ```bash
 # In the root of the project run
 python -m venv venv
+# Activate virtual env
+# For Windows PowerShell
+./venv/Scripts/activate
 ```
 
 Install packages
