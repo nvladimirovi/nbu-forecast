@@ -39,10 +39,13 @@ curl --location --request POST 'http://127.0.0.1:8000/predict/' \
 
 # Software Architectures for ML - Exam 2
 ## Build Docker Image
-```docker build -t sem2-forecast-exam2 .```
+```docker build -t nvladimirovi/nbu .```
+
+## Download Docker Image
+```docker pull nvladimirovi/nbu```
 
 ## Start Docker Container
-```docker run --name fruit-classifier -it -p 8020:8020 sem2-forecast-exam2```
+```docker run --name fruit-classifier -it -p 8020:8020 nvladimirovi/nbu```
 If container with same name already exists
 ```docker run fruit-classifier```
 
